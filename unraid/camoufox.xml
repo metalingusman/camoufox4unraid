@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>camoufox</Name>
+  <Repository>chrissimpson84/camoufox:latest</Repository>
+  <Registry>https://hub.docker.com/r/chrissimpson84/camoufox</Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/metalingusman/camoufox4unraid/issues</Support>
+  <Project>https://github.com/metalingusman/camoufox4unraid</Project>
+  <Overview>
+Camoufox is an anti-detect browser based on Firefox, packaged as a Docker container for use with changedetection.io.
+
+Features:
+- Stealth patches to avoid bot detection
+- Intelligent fingerprint rotation
+- Compatible with Playwright WebSocket protocol
+- Configurable proxy support
+- GeoIP-based fingerprinting
+
+Use with changedetection.io by setting PLAYWRIGHT_DRIVER_URL=ws://camoufox:3000/connect
+
+IMPORTANT: Requires at least 2GB shared memory (--shm-size=2g)
+  </Overview>
+  <Category>Tools: Network:Web Status:Beta</Category>
+  <WebUI/>
+  <TemplateURL>https://raw.githubusercontent.com/metalingusman/camoufox4unraid/main/unraid/camoufox.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/metalingusman/camoufox4unraid/main/icon.png</Icon>
+  <ExtraParams>--shm-size=2g</ExtraParams>
+  <PostArgs/>
+  <CPUset/>
+  <DateInstalled/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires/>
+  <Config Name="WebSocket Port" Target="3000" Default="3000" Mode="tcp" Description="Port for Playwright WebSocket connections" Type="Port" Display="always" Required="true" Mask="false">3000</Config>
+  <Config Name="Server Port" Target="CAMOUFOX_PORT" Default="3000" Mode="" Description="Internal WebSocket server port (should match port mapping)" Type="Variable" Display="advanced" Required="false" Mask="false">3000</Config>
+  <Config Name="WebSocket Path" Target="CAMOUFOX_WS_PATH" Default="connect" Mode="" Description="URL path for WebSocket endpoint (e.g., ws://host:3000/connect)" Type="Variable" Display="advanced" Required="false" Mask="false">connect</Config>
+  <Config Name="Headless Mode" Target="CAMOUFOX_HEADLESS" Default="true" Mode="" Description="Run browser in headless mode (true/false)" Type="Variable" Display="advanced" Required="false" Mask="false">true</Config>
+  <Config Name="GeoIP Fingerprinting" Target="CAMOUFOX_GEOIP" Default="false" Mode="" Description="Enable GeoIP-based browser fingerprinting (true/false). Works best with a proxy." Type="Variable" Display="advanced" Required="false" Mask="false">false</Config>
+  <Config Name="Proxy Server" Target="CAMOUFOX_PROXY_SERVER" Default="" Mode="" Description="Proxy server URL (e.g., http://proxy.example.com:8080)" Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
+  <Config Name="Proxy Username" Target="CAMOUFOX_PROXY_USERNAME" Default="" Mode="" Description="Proxy authentication username (optional)" Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
+  <Config Name="Proxy Password" Target="CAMOUFOX_PROXY_PASSWORD" Default="" Mode="" Description="Proxy authentication password (optional)" Type="Variable" Display="advanced" Required="false" Mask="true"></Config>
+</Container>

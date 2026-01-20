@@ -1,0 +1,69 @@
+# Docker Compose for Camoufox with changedetection.io
+#
+# This example shows how to use Camoufox as the Playwright browser
+# for changedetection.io's content fetcher.
+#
+# Usage:
+#   docker compose up -d
+#
+# Access changedetection.io at http://localhost:5000
+# Configure watches to use "Playwright Chromium/Javascript" fetcher
+
+services:
+  # Camoufox anti-detect browser server
+  camoufox:
+    image: chrissimpson84/camoufox:latest
+    container_name: camoufox
+    hostname: camoufox
+    restart: unless-stopped
+    # Browser requires shared memory
+    shm_size: 2g
+    # Optional: Increase if browser crashes
+    # shm_size: 4g
+    environment:
+      # WebSocket server port
+      - CAMOUFOX_PORT=3000
+      # WebSocket URL path (ws://camoufox:3000/connect)
+      - CAMOUFOX_WS_PATH=connect
+      # Run in headless mode
+      - CAMOUFOX_HEADLESS=true
+      # Enable GeoIP-based fingerprinting (requires proxy for accuracy)
+      - CAMOUFOX_GEOIP=false
+      # Optional: Proxy configuration
+      # - CAMOUFOX_PROXY_SERVER=http://proxy.example.com:8080
+      # - CAMOUFOX_PROXY_USERNAME=username
+      # - CAMOUFOX_PROXY_PASSWORD=password
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # changedetection.io - Website change monitoring
+  changedetection:
+    image: ghcr.io/dgtlmoon/changedetection.io:latest
+    container_name: changedetection
+    hostname: changedetection
+    restart: unless-stopped
+    volumes:
+      - changedetection-data:/datastore
+    environment:
+      - PORT=5000
+      # Connect to Camoufox via Playwright WebSocket
+      # Note: Camoufox uses Firefox, but the Playwright protocol is compatible
+      - PLAYWRIGHT_DRIVER_URL=ws://camoufox:3000/connect
+      # Optional: Hide referrer for privacy
+      - HIDE_REFERER=true
+      # Optional: Number of parallel fetch workers
+      - FETCH_WORKERS=10
+      # Optional: Minimum recheck interval (seconds)
+      - MINIMUM_SECONDS_RECHECK_TIME=3
+    ports:
+      - "5000:5000"
+    depends_on:
+      camoufox:
+        condition: service_started
+
+volumes:
+  changedetection-data:
