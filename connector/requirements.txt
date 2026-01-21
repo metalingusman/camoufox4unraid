@@ -1,0 +1,13 @@
+# Camoufox Connector Requirements
+#
+# Pin Playwright to ~=1.56.0 to match changedetection.io's version
+# This resolves the Playwright protocol version mismatch issue
+
+# Playwright - pinned to match changedetection.io
+playwright~=1.56.0
+
+# Camoufox connector - WebSocket bridge for multi-language Playwright access
+camoufox-connector>=1.0.2
+
+# Camoufox with GeoIP support
+camoufox[geoip]

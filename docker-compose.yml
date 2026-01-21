@@ -4,22 +4,68 @@
 # for changedetection.io's content fetcher.
 #
 # Usage:
-#   docker compose up -d
+#   Using connector (recommended - resolves Playwright version mismatch):
+#     docker compose --profile connector up -d
+#
+#   Using direct Camoufox server:
+#     docker compose up -d
 #
 # Access changedetection.io at http://localhost:5000
 # Configure watches to use "Playwright Chromium/Javascript" fetcher
 
 services:
-  # Camoufox anti-detect browser server
+  # ============================================================
+  # OPTION 1: Camoufox Connector (RECOMMENDED)
+  # Resolves Playwright version mismatch with changedetection.io
+  # ============================================================
+  camoufox-connector:
+    build:
+      context: ./connector
+      dockerfile: Dockerfile
+    image: chrissimpson84/camoufox-connector:latest
+    container_name: camoufox-connector
+    hostname: camoufox-connector
+    profiles:
+      - connector
+    restart: unless-stopped
+    shm_size: 2g
+    environment:
+      # Operating mode: 'single' or 'pool'
+      - CAMOUFOX_MODE=single
+      # Number of browser instances (pool mode only)
+      - CAMOUFOX_POOL_SIZE=3
+      # HTTP API port for health checks
+      - CAMOUFOX_API_PORT=8080
+      # WebSocket port for browser connection
+      - CAMOUFOX_WS_PORT_START=9222
+      # Run in headless mode
+      - CAMOUFOX_HEADLESS=true
+      # Enable GeoIP-based fingerprinting
+      - CAMOUFOX_GEOIP=true
+      # Enable human-like behavior
+      - CAMOUFOX_HUMANIZE=true
+      # Optional: Proxy configuration
+      # - CAMOUFOX_PROXY=http://user:pass@proxy.example.com:8080
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ============================================================
+  # OPTION 2: Direct Camoufox Server
+  # May have Playwright version compatibility issues
+  # ============================================================
   camoufox:
     image: chrissimpson84/camoufox:latest
     container_name: camoufox
     hostname: camoufox
+    profiles:
+      - direct
     restart: unless-stopped
     # Browser requires shared memory
     shm_size: 2g
-    # Optional: Increase if browser crashes
-    # shm_size: 4g
     environment:
       # WebSocket server port
       - CAMOUFOX_PORT=3000
@@ -40,7 +86,9 @@ services:
       retries: 3
       start_period: 30s
 
+  # ============================================================
   # changedetection.io - Website change monitoring
+  # ============================================================
   changedetection:
     image: ghcr.io/dgtlmoon/changedetection.io:latest
     container_name: changedetection
@@ -50,14 +98,38 @@ services:
       - changedetection-data:/datastore
     environment:
       - PORT=5000
-      # Connect to Camoufox via Playwright WebSocket
-      # Note: Camoufox uses Firefox, but the Playwright protocol is compatible
-      - PLAYWRIGHT_DRIVER_URL=ws://camoufox:3000/connect
+      # Connect to Camoufox Connector (recommended)
+      # Use ws://camoufox-connector:9222 for connector
+      # Use ws://camoufox:3000/connect for direct server
+      - PLAYWRIGHT_DRIVER_URL=ws://camoufox-connector:9222
       # Optional: Hide referrer for privacy
       - HIDE_REFERER=true
       # Optional: Number of parallel fetch workers
       - FETCH_WORKERS=10
       # Optional: Minimum recheck interval (seconds)
+      - MINIMUM_SECONDS_RECHECK_TIME=3
+    ports:
+      - "5000:5000"
+    depends_on:
+      camoufox-connector:
+        condition: service_started
+
+  # changedetection.io configured for direct Camoufox server
+  changedetection-direct:
+    image: ghcr.io/dgtlmoon/changedetection.io:latest
+    container_name: changedetection-direct
+    hostname: changedetection-direct
+    profiles:
+      - direct
+    restart: unless-stopped
+    volumes:
+      - changedetection-data:/datastore
+    environment:
+      - PORT=5000
+      # Connect to direct Camoufox server
+      - PLAYWRIGHT_DRIVER_URL=ws://camoufox:3000/connect
+      - HIDE_REFERER=true
+      - FETCH_WORKERS=10
       - MINIMUM_SECONDS_RECHECK_TIME=3
     ports:
       - "5000:5000"

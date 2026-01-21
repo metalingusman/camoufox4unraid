@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>camoufox-connector</Name>
+  <Repository>chrissimpson84/camoufox-connector:latest</Repository>
+  <Registry>https://hub.docker.com/r/chrissimpson84/camoufox-connector</Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/metalingusman/camoufox4unraid/issues</Support>
+  <Project>https://github.com/metalingusman/camoufox4unraid</Project>
+  <Overview>
+    Camoufox Connector - WebSocket bridge for changedetection.io integration.
+    
+    This container runs camoufox-connector which resolves Playwright version 
+    mismatches between Camoufox anti-detect browser and changedetection.io.
+    
+    Features:
+    - Playwright version compatibility with changedetection.io
+    - Single or pool modes with fingerprint rotation
+    - HTTP health check API
+    - GeoIP-based fingerprinting support
+    - Human-like behavior emulation
+    
+    Connect changedetection.io using:
+    PLAYWRIGHT_DRIVER_URL=ws://camoufox-connector:9222
+  </Overview>
+  <Category>Tools: Network:Web</Category>
+  <WebUI/>
+  <TemplateURL>https://raw.githubusercontent.com/metalingusman/camoufox4unraid/main/unraid/camoufox-connector.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/metalingusman/camoufox4unraid/main/icon.png</Icon>
+  <ExtraParams>--shm-size=2g</ExtraParams>
+  <PostArgs/>
+  <CPUset/>
+  <DateInstalled/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires/>
+  <Config Name="HTTP API Port" Target="8080" Default="8080" Mode="tcp" Description="Health check and API port" Type="Port" Display="always" Required="true" Mask="false">8080</Config>
+  <Config Name="WebSocket Port" Target="9222" Default="9222" Mode="tcp" Description="Playwright WebSocket connection port" Type="Port" Display="always" Required="true" Mask="false">9222</Config>
+  <Config Name="Mode" Target="CAMOUFOX_MODE" Default="single" Mode="" Description="Operating mode: 'single' for one browser, 'pool' for multiple browsers with fingerprint rotation" Type="Variable" Display="always" Required="false" Mask="false">single</Config>
+  <Config Name="Pool Size" Target="CAMOUFOX_POOL_SIZE" Default="3" Mode="" Description="Number of browser instances in pool mode" Type="Variable" Display="always" Required="false" Mask="false">3</Config>
+  <Config Name="Headless Mode" Target="CAMOUFOX_HEADLESS" Default="true" Mode="" Description="Run browser in headless mode (true/false)" Type="Variable" Display="always" Required="false" Mask="false">true</Config>
+  <Config Name="Enable GeoIP" Target="CAMOUFOX_GEOIP" Default="true" Mode="" Description="Enable GeoIP-based locale/timezone fingerprinting (true/false)" Type="Variable" Display="always" Required="false" Mask="false">true</Config>
+  <Config Name="Enable Humanize" Target="CAMOUFOX_HUMANIZE" Default="true" Mode="" Description="Enable human-like behavior emulation (true/false)" Type="Variable" Display="always" Required="false" Mask="false">true</Config>
+  <Config Name="Block Images" Target="CAMOUFOX_BLOCK_IMAGES" Default="false" Mode="" Description="Block image loading for faster page loads (true/false)" Type="Variable" Display="advanced" Required="false" Mask="false">false</Config>
+  <Config Name="Proxy URL" Target="CAMOUFOX_PROXY" Default="" Mode="" Description="Optional proxy URL (http://user:pass@host:port)" Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="Debug Mode" Target="CAMOUFOX_DEBUG" Default="false" Mode="" Description="Enable debug logging (true/false)" Type="Variable" Display="advanced" Required="false" Mask="false">false</Config>
+</Container>
